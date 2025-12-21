@@ -1,6 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+const BASE_PATH = "src/lib/data"
+
 /**
  * Retrieves the capital city for a given country from mock data.
  * @param country The name of the country.
@@ -8,7 +10,7 @@ import { join } from "node:path";
  */
 export async function getMockCapital(country: string): Promise<string | null> {
 	const normalizedCountry = country.toLowerCase();
-	const dataPath = join(process.cwd(), "lib", "data", "countries.json");
+	const dataPath = join(process.cwd(), BASE_PATH, "countries.json");
 	console.log(`[Lib] Reading capital data from: ${dataPath}`);
 
 	if (!existsSync(dataPath)) {
@@ -36,7 +38,7 @@ export async function getMockCapital(country: string): Promise<string | null> {
  */
 export async function getMockFlag(country: string): Promise<string | null> {
 	const normalizedCountry = country.toLowerCase();
-	const dataPath = join(process.cwd(), "lib", "data", "flags.json");
+	const dataPath = join(process.cwd(), BASE_PATH, "flags.json");
 	console.log(`[Lib] Reading flag data from: ${dataPath}`);
 
 	if (!existsSync(dataPath)) {
