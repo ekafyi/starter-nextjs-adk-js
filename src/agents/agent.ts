@@ -1,11 +1,28 @@
 import { FunctionTool, LlmAgent } from "@google/adk";
 import { z } from "zod";
+import { getMockCapital, getMockFlag } from "@/lib/countries";
 
 const ROOT_AGENT_NAME = "countries_agent";
 const ROOT_AGENT_MODEL = "gemini-2.5-flash";
 const ROOT_AGENT_DESCRIPTION =
 	"Agent to answer questions about the capital or flag of a country.";
-const ROOT_AGENT_INSTRUCTION = "You are a simple geography-themed assistant. You reply to user's query about the capital or flag of a country. If user asks about anything else, refuse to answer and say why.";
+const ROOT_AGENT_INSTRUCTION = `You are a helpful agent that helps users get information about countries.
+Follow this protocol:
+
+1. **IDENTIFY THE COUNTRY**:
+   - Determine which country the user is asking about.
+	 - If user is not asking about countries or asking out-of-bond topics, refuse to answer.
+
+2. **OUTPUT FORMAT**:
+   - You MUST ALWAYS respond with ONLY a valid JSON object, no additional text before or after.
+   - The JSON must have these fields:
+     * "message" (string, required): The main response message to the user (can be the result from tools)
+     * "status" (string, required): One of "success", "error", or "denied"
+     * "data" (object, optional): Structured data like {"country": "...", "capital": "...", "flag": "..."}
+   - Example success response: {"message": "The capital of France is Paris.", "status": "success", "data": {"country": "France", "capital": "Paris"}}
+   - Example denied response: {"message": "I can only discuss countries.", "status": "denied"}
+   - DO NOT include markdown code blocks, explanations, or any text outside the JSON object.
+`;
 
 /**
  * Tool (1) to retrieve the capital city for a given country.
@@ -21,10 +38,25 @@ const getCapital = new FunctionTool({
 			),
 	}),
 	execute: async ({ country }) => {
-		return {
-			status: "success",
-			result: `TODO return capital of ${country}`,
-		};
+		try {
+			const capital = await getMockCapital(country);
+			if (capital) {
+				return {
+					status: "success",
+					result: capital,
+				};
+			} else {
+				return {
+					status: "error",
+					error_message: `Sorry, I couldn't find the capital for ${country}.`,
+				};
+			}
+		} catch (error) {
+			return {
+				status: "error",
+				error_message: `Failed to retrieve data: ${(error as Error).message}`,
+			};
+		}
 	},
 });
 
@@ -42,10 +74,25 @@ const getFlag = new FunctionTool({
 			),
 	}),
 	execute: async ({ country }) => {
-		return {
-			status: "success",
-			result: `TODO return flag of ${country}`,
-		};
+		try {
+			const flag = await getMockFlag(country);
+			if (flag) {
+				return {
+					status: "success",
+					result: flag,
+				};
+			} else {
+				return {
+					status: "error",
+					error_message: `Sorry, I couldn't find the flag for ${country}.`,
+				};
+			}
+		} catch (error) {
+			return {
+				status: "error",
+				error_message: `Failed to retrieve data: ${(error as Error).message}`,
+			};
+		}
 	},
 });
 
