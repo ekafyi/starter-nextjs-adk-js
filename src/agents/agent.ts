@@ -10,7 +10,7 @@ const ROOT_AGENT_INSTRUCTION = `You are a helpful agent that helps users get inf
 Follow this protocol:
 
 1. **IDENTIFY THE COUNTRY**:
-   - Determine which country the user is asking about.
+   - Determine which country the user is asking about. Look into 'last_mentioned_country' state if necessary.
 	 - If user is not asking about countries or asking out-of-bond topics, refuse to answer.
 
 2. **OUTPUT FORMAT**:
