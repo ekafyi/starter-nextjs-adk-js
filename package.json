@@ -14,7 +14,7 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
-    "adk-web-ui": "npx adk web"
+    "adk-web-ui": "npx adk web src/agents"
   },
   "dependencies": {
     "@google/adk": "^0.2.1",
