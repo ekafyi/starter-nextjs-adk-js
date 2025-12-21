@@ -1,4 +1,4 @@
-import { FunctionTool, LlmAgent } from "@google/adk";
+import { FunctionTool, LlmAgent, type ToolContext } from "@google/adk";
 import { z } from "zod";
 import { getMockCapital, getMockFlag } from "@/lib/countries";
 
@@ -37,10 +37,13 @@ const getCapital = new FunctionTool({
 				"The name of the country for which to retrieve the capital city.",
 			),
 	}),
-	execute: async ({ country }) => {
+	execute: async ({ country }, toolContext?: ToolContext) => {
 		try {
 			const capital = await getMockCapital(country);
 			if (capital) {
+				// [OPTIONAL SESSION STATE] Update the last mentioned country in session state.
+				toolContext?.state.set("last_mentioned_country", country.toLowerCase());
+
 				return {
 					status: "success",
 					result: capital,
@@ -73,10 +76,13 @@ const getFlag = new FunctionTool({
 				"The name of the country for which to retrieve the flag emoji.",
 			),
 	}),
-	execute: async ({ country }) => {
+	execute: async ({ country }, toolContext?: ToolContext) => {
 		try {
 			const flag = await getMockFlag(country);
 			if (flag) {
+				// [OPTIONAL SESSION STATE] Update the last mentioned country in session state.
+				toolContext?.state.set("last_mentioned_country", country.toLowerCase());
+
 				return {
 					status: "success",
 					result: flag,
