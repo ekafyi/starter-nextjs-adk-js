@@ -2,6 +2,12 @@
   "name": "starter-nextjs-adk-js",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "Eka",
+    "email": "hi@eka.fyi",
+    "url": "https://github.com/ekafyi"
+  },
+  "description": "Next.js + ADK TypeScript starter template",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
