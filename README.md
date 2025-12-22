@@ -25,14 +25,25 @@ mv .env.example .env
 
 # Run Next.js dev server (default port 3000)
 npm run dev
-
-# Run ADK dev server (default port 8000)
-npm run adk-web-ui
 ```
 
 Get API key on AI Studio: https://aistudio.google.com/app/apikey (free tier available).
 
 Consult the docs to [use other models](https://google.github.io/adk-docs/agents/models/) on Vertex AI and, in the future, non-Gemini models  (currently unsupported in TypeScript).
+
+### ADK Web UI
+
+[ADK Web](https://github.com/google/adk-web): _"the built-in developer UI that is integrated with Agent Development Kit for easier agent development and debugging."_
+
+⚠️ Not meant for production, for [dev and debug only](https://google.github.io/adk-docs/get-started/typescript/#run-with-web-interface).
+
+```sh
+# Run ADK dev server (default port 8000)
+npm run adk-web-ui
+
+# shorthand for:
+# npx adk web src/agents
+```
 
 ## Deploy
 
