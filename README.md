@@ -1,6 +1,6 @@
 # Next.js + ADK for TypeScript starter site
 
-A minimal starter for building AI agentic web application with [Google's ADK](https://github.com/google/adk-js) and [Next.js](https://github.com/vercel/next.js).
+A minimal starter for building AI agentic web application with [Google's ADK for TypeScript](https://github.com/google/adk-js) and [Next.js](https://github.com/vercel/next.js).
 
 - **Unopinionated boilerplate.** Based off standard `create-next-app` install (App Router + TypeScript + Tailwind + Biome). Customise according to your preferences.
 - **All in TypeScript**. Create complex agents fully in TS; collocate with your Next.js app. No need for separate backend services.
