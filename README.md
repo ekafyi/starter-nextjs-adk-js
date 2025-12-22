@@ -45,6 +45,8 @@ npm run adk-web-ui
 # npx adk web src/agents
 ```
 
+<img width="1125" height="626" alt="adk web ui showing user and assistant conversation and tool usage" src="https://github.com/user-attachments/assets/d197dcfa-a722-4b78-88b4-456c6eca45a3" />
+
 ## Deploy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fekafyi%2Fstarter-nextjs-adk-js&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20key%20(free%20tier%20available)&envLink=https%3A%2F%2Faistudio.google.com%2Fapikey)
