@@ -1,4 +1,4 @@
-import { FunctionTool, LlmAgent, type ToolContext } from "@google/adk";
+import { AgentTool, FunctionTool, LlmAgent, type ToolContext } from "@google/adk";
 import { z } from "zod";
 import { getMockCapital, getMockFlag } from "@/lib/countries";
 
@@ -102,10 +102,25 @@ const getFlag = new FunctionTool({
 	},
 });
 
+/**
+ * Tool (3) / Agent-as-a-Tool to provide general info about the last-mentioned country.
+ * @see https://google.github.io/adk-docs/tools-custom/function-tools/#agent-tool
+ */
+const countryGeneralKnowledgeTool = new AgentTool({
+	agent: new LlmAgent({
+		name: "country_general_knowledge_agent",
+		model: "gemini-2.5-flash",
+		instruction: `You are a Geography educator on primary to secondary education level.
+You answer questions about FUNDAMENTAL PHYSICAL AND GEOGRAPHIC FACTS (location, terrain, climate, natural features).
+Refuse questions about temporal, political, social, cultural, or changeable aspects (current events, contemporary figures, governance).
+Keep answers brief (1-2 sentences).`,
+	}),
+});
+
 export const rootAgent = new LlmAgent({
 	name: ROOT_AGENT_NAME,
 	model: ROOT_AGENT_MODEL,
 	description: ROOT_AGENT_DESCRIPTION,
 	instruction: ROOT_AGENT_INSTRUCTION,
-	tools: [getCapital, getFlag]
+	tools: [getCapital, getFlag, countryGeneralKnowledgeTool]
 });
