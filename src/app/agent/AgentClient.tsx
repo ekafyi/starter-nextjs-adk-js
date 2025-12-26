@@ -120,12 +120,12 @@ function AgentResponseUI({ response }: { response: AgentResponse | null }) {
 		.filter((event: AgentEvent) => event.content.role === "model")
 		.flatMap((event: AgentEvent) => event.content.parts)
 		.reverse()
-		.find((part) => part.text)?.text;
+		.find((part) => part.text);
 
-	if (!toolResults.length || !lastModelPart) return null;
+	if (!lastModelPart?.text) return null;
 
 	try {
-		message = JSON.parse(lastModelPart).message;
+		message = JSON.parse(lastModelPart.text).message;
 		tools = toolResults.map((result) => (result.functionResponse?.name || ""));
 	} catch (e) {
 		console.error(e);
@@ -135,7 +135,9 @@ function AgentResponseUI({ response }: { response: AgentResponse | null }) {
 		<>
 			<div className="p-4 rounded-lg border border-current/20 space-y-2">
 				<p className="text-lg">{message}</p>
-				<p className="text-xs opacity-80">🛠️ {tools}</p>
+				{toolResults.length ? (
+					<p className="text-xs opacity-80">🛠️ {tools}</p>
+				) : null}
 			</div>
 
 			<div className="border p-4 rounded bg-foreground text-background shadow-sm">
