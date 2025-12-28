@@ -102,7 +102,9 @@ src
 
 ## Usage
 
-### Defining Agents
+<details>
+  <summary style="font-weight:700">Defining Agents</summary>
+  <div>
 
 📄 [src/agents/agent.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/agents/agent.ts)
 
@@ -115,7 +117,12 @@ export const rootAgent = new LlmAgent({
 });
 ```
 
-### Defining Tools
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight:700">Defining Tools</summary>
+  <div>
 
 📄 [src/agents/agent.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/agents/agent.ts)
 
@@ -146,12 +153,17 @@ Use optional `ToolContext` to read/write session-scoped state.
 - execute: async ({ country }) => {
 + execute: async ({ country }, toolContext?: ToolContext) => {
 +  toolContext?.state.set("last_mentioned_country", country);
-   // ...
+    // ...
 },
 ```
 
 
-### Passing Agent to Runner
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight:700">Passing Agent to Runner</summary>
+  <div>
 
 📄 [src/app/api/agent/route.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/api/agent/route.ts)
 
@@ -170,7 +182,12 @@ const iterator = runner.runAsync({
 });
 ```
 
-### User Auth
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight:700">User Auth</summary>
+  <div>
 
 Bring your own auth.
 
@@ -182,7 +199,12 @@ Bring your own auth.
    - [src/app/agent/page.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/agent/page.ts)
    - [src/app/api/agent/route.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/api/agent/route.ts)
 
-### Session Data Persistence
+  </div>
+</details>
+
+<details>
+  <summary style="font-weight:700">Session Data Persistence</summary>
+  <div>
 
 Persistent storage built-in support is [planned for early 2026](https://github.com/google/adk-js/discussions/27#discussioncomment-15332818).
 
@@ -209,6 +231,9 @@ if (!existingSession) {
   await runner.sessionService.createSession({ ... });
 }
 ```
+
+  </div>
+</details>
 
 ## Learn More
 
