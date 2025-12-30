@@ -13,6 +13,26 @@ const APP_NAME = "sample_app";
 // Define runner outside the handler to persist state across requests.
 const runner = new InMemoryRunner({ agent: rootAgent, appName: APP_NAME });
 
+function cleanEvents(events: any[]) {
+	return events
+		.filter((event) => {
+			// Filter out empty marker events (where content.parts is empty)
+			if (
+				event.content &&
+				Array.isArray(event.content.parts) &&
+				event.content.parts.length === 0
+			) {
+				return false;
+			}
+			return true;
+		})
+		.map((event) => {
+			// Remove actions and usageMetadata
+			const { actions, usageMetadata, ...rest } = event;
+			return rest;
+		});
+}
+
 /**
  * Ping on local dev server:
  * 
@@ -100,17 +120,18 @@ export async function POST(req: Request) {
 		});
 
 		if (updatedSession) {
+			const cleanedEvents = cleanEvents(updatedSession.events);
 			await db
 				.insert(sessions)
 				.values({
 					id: sessionId,
 					userId,
-					events: JSON.stringify(updatedSession.events),
+					events: JSON.stringify(cleanedEvents),
 				})
 				.onConflictDoUpdate({
 					target: sessions.id,
 					set: {
-						events: JSON.stringify(updatedSession.events),
+						events: JSON.stringify(cleanedEvents),
 					},
 				});
 		}
