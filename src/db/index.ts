@@ -1,7 +1,7 @@
-import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import * as schema from "./schema";
 import dotenv from "dotenv";
+import { drizzle } from "drizzle-orm/libsql";
+import * as schema from "./schema";
 
 dotenv.config();
 
