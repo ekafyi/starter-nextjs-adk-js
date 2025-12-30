@@ -57,7 +57,7 @@ Try now:
    nano .env
    ```
 
-4. Setup local database
+4. Setup local database (default to `local.db`)
 
    ```sh
    npm run db:push
@@ -106,7 +106,7 @@ src
 ## Usage
 
 <details>
-  <summary style="font-weight:700">Defining Agents</summary>
+  <summary><h3>Defining Agents</h3></summary>
   <div>
 
 📄 [src/agents/agent.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/agents/agent.ts)
@@ -124,7 +124,7 @@ export const rootAgent = new LlmAgent({
 </details>
 
 <details>
-  <summary style="font-weight:700">Defining Tools</summary>
+  <summary><h3>Defining Tools</h3></summary>
   <div>
 
 📄 [src/agents/agent.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/agents/agent.ts)
@@ -164,7 +164,7 @@ Use optional `ToolContext` to read/write session-scoped state.
 </details>
 
 <details>
-  <summary style="font-weight:700">Passing Agent to Runner</summary>
+  <summary><h3>Passing Agent to Runner</h3></summary>
   <div>
 
 📄 [src/app/api/agent/route.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/api/agent/route.ts)
@@ -188,7 +188,7 @@ const iterator = runner.runAsync({
 </details>
 
 <details>
-  <summary style="font-weight:700">User Auth</summary>
+  <summary><h3>User Auth</h3></summary>
   <div>
 
 Bring your own auth.
@@ -205,7 +205,7 @@ Bring your own auth.
 </details>
 
 <details>
-  <summary style="font-weight:700">Persistence</summary>
+  <summary><h3>Persistence</h3></summary>
   <div>
 
 Currently ADK TypeScript has [no built-in support for persistence](https://github.com/google/adk-js/discussions/27#discussioncomment-15332818); everything runs in-memory.
@@ -221,7 +221,8 @@ Here I use Drizzle and local SQLite file to persist user sessions and events man
 Local vs Remote DB:
 
 - Local file works out of the box for running locally.
-  - `npm run db:push` creates the DB file (default to `local.db`) and apply the schema.
+  - (optional) Define DB file name through the `DB_FILE_NAME` env variable (default to `local.db`).
+  - `npm run db:push` creates the DB file and apply the schema.
   - (optional) `npm run db:seed` inserts sample user to the DB.
 - If deploying this to a serverless hosting service, use a compatible remote database like [Turso](https://turso.tech). Local file will not persist across serverless function invocations.
   - Change the `DB_FILE_NAME` env variable to a `libsql://` URL for production.
