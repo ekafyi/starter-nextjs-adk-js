@@ -3,6 +3,10 @@ import { createUserContent } from "@google/genai";
 import { NextResponse } from "next/server";
 import { rootAgent } from "@/agents/agent";
 import { getUsernameFromCookie } from "@/lib/auth";
+import { db } from "../../../db";
+import { sessions } from "../../../db/schema";
+import { eq } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
 const APP_NAME = "sample_app";
 
@@ -36,33 +40,43 @@ export async function POST(req: Request) {
 			);
 		}
 
-		// ⚠️ [FOR DB IMPLEMENTATION] Read DB to get user's active session ID.
-		// Example: `let sessionId = await db.getSessionId(userId);`
-		let sessionId: string | undefined;
+		const [userSession] = await db
+			.select()
+			.from(sessions)
+			.where(eq(sessions.userId, userId))
+			.limit(1);
 
-		// If no session ID found in DB, generate a new one and save it.
-		if (!sessionId) {
-			// Session ID does not have to be unique across users.
-			// You can generate random id (e.g.) `randomUUID` from `node:crypto` 
-			// or use any other way.
-			sessionId = "session_1";
+		let sessionId = userSession?.id;
+		let previousEvents = [];
 
-			// ⚠️ [FOR DB IMPLEMENTATION] Write to DB to store session ID.
-			// Example: `await db.saveSessionId(userId, sessionId);`
+		if (userSession) {
+			try {
+				previousEvents = JSON.parse(userSession.events);
+			} catch (e) {
+				console.error("Failed to parse session events", e);
+			}
+		} else {
+			sessionId = randomUUID();
 		}
 
-		const existingSession = await runner.sessionService.getSession({
+		let session = await runner.sessionService.getSession({
 			appName: APP_NAME,
 			userId,
 			sessionId,
 		});
 
-		if (!existingSession) {
-			await runner.sessionService.createSession({
+		if (!session) {
+			session = await runner.sessionService.createSession({
 				appName: APP_NAME,
 				userId,
 				sessionId,
 			});
+			if (previousEvents && previousEvents.length > 0) {
+				const service = runner.sessionService as any;
+				if (service.sessions?.[APP_NAME]?.[userId]?.[sessionId]) {
+					service.sessions[APP_NAME][userId][sessionId].events = previousEvents;
+				}
+			}
 		}
 
 		// runAsync returns an AsyncGenerator<Event>
@@ -77,6 +91,28 @@ export async function POST(req: Request) {
 		const events = [];
 		for await (const event of iterator) {
 			events.push(event);
+		}
+
+		const updatedSession = await runner.sessionService.getSession({
+			appName: APP_NAME,
+			userId,
+			sessionId,
+		});
+
+		if (updatedSession) {
+			await db
+				.insert(sessions)
+				.values({
+					id: sessionId,
+					userId,
+					events: JSON.stringify(updatedSession.events),
+				})
+				.onConflictDoUpdate({
+					target: sessions.id,
+					set: {
+						events: JSON.stringify(updatedSession.events),
+					},
+				});
 		}
 
 		return NextResponse.json({ events, userId, sessionId });
