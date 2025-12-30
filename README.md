@@ -62,11 +62,24 @@ Try now:
    npm run dev
    ```
 
-### Deploying
+### Database Setup
 
-Deploy to Vercel or [other platforms](https://nextjs.org/docs/app/building-your-application/deploying) of your choice.
+This project uses Drizzle ORM with SQLite (`@libsql/client`).
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fekafyi%2Fstarter-nextjs-adk-js&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20key%20(free%20tier%20available)&envLink=https%3A%2F%2Faistudio.google.com%2Fapikey)
+1.  Install dependencies:
+    ```sh
+    npm install
+    ```
+
+2.  Push schema to create the DB file:
+    ```sh
+    npm run db:push
+    ```
+
+3.  Seed the database with a default user:
+    ```sh
+    npm run db:seed
+    ```
 
 ## ADK Web UI
 
@@ -202,38 +215,19 @@ Bring your own auth.
   </div>
 </details>
 
-<details>
-  <summary style="font-weight:700">Session Data Persistence</summary>
-  <div>
+## Persistence
 
-Persistent storage built-in support is [planned for early 2026](https://github.com/google/adk-js/discussions/27#discussioncomment-15332818).
+User sessions and events are persisted to a local SQLite file (`local.db`).
 
-This project uses placeholder to replace with your own DB functionalities.
+-   `src/lib/auth.ts` checks the `users` table.
+-   `src/app/api/agent/route.ts` loads and saves session events.
 
-📄 [src/app/api/agent/route.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/api/agent/route.ts)
+## Deployment & Trade-offs
 
-```ts
-// Replace with your own code:
-// - `getUsernameFromCookie`
-// - `generateNewId`,
-// - `db.getSessionId`, `db.saveSessionId`
+For Vercel deployment, the local SQLite file will not persist across serverless function invocations.
 
-const userId = await getUsernameFromCookie();
-
-let sessionId = await db.getSessionId(userId); 
-if (!sessionId) {
-  sessionId = generateNewId();
-  await db.saveSessionId(userId, sessionId);
-}
-
-const existingSession = await runner.sessionService.getSession({ ... });
-if (!existingSession) {
-  await runner.sessionService.createSession({ ... });
-}
-```
-
-  </div>
-</details>
+-   **Recommendation**: Use a remote database (like Turso) by changing the `DB_FILE_NAME` environment variable to a `libsql://` URL for production.
+-   **Note**: This implementation is a "starter" or "demo" setup.
 
 ## Learn More
 
