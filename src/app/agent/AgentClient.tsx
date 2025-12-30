@@ -67,10 +67,13 @@ export default function AgentClient({ username }: AgentClientProps) {
 			<form onSubmit={handleSubmit} className="flex gap-2">
 				<input
 					type="text"
+					name="question"
+					required
 					value={input}
 					onChange={(e) => setInput(e.target.value)}
+					aria-label="Question (example: Capital of France?)"
 					placeholder="Ask a question (example: Capital of France?)"
-					className="border p-2 rounded grow text-background bg-foreground accent-primary"
+					className="border border-current/25 p-2 rounded grow accent-primary bg-muted"
 				/>
 				<button
 					type="submit"
