@@ -1,12 +1,13 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: temporary workaround DB */
+import { randomUUID } from "node:crypto";
 import { InMemoryRunner } from "@google/adk";
 import { createUserContent } from "@google/genai";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { rootAgent } from "@/agents/agent";
+import { db } from "@/db";
+import { sessions } from "@/db/schema";
 import { getUsernameFromCookie } from "@/lib/auth";
-import { db } from "../../../db";
-import { sessions } from "../../../db/schema";
-import { eq } from "drizzle-orm";
-import { randomUUID } from "crypto";
 
 const APP_NAME = "sample_app";
 
@@ -27,7 +28,7 @@ function cleanEvents(events: any[]) {
 			return true;
 		})
 		.map((event) => {
-			// Remove actions and usageMetadata
+			// biome-ignore lint/correctness/noUnusedVariables: unused to remove
 			const { actions, usageMetadata, ...rest } = event;
 			return rest;
 		});
