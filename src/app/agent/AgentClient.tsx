@@ -67,10 +67,13 @@ export default function AgentClient({ username }: AgentClientProps) {
 			<form onSubmit={handleSubmit} className="flex gap-2">
 				<input
 					type="text"
+					name="question"
+					required
 					value={input}
 					onChange={(e) => setInput(e.target.value)}
+					aria-label="Question (example: Capital of France?)"
 					placeholder="Ask a question (example: Capital of France?)"
-					className="border p-2 rounded grow text-background bg-foreground accent-primary"
+					className="border border-current/25 p-2 rounded grow accent-primary bg-muted"
 				/>
 				<button
 					type="submit"
@@ -140,12 +143,14 @@ function AgentResponseUI({ response }: { response: AgentResponse | null }) {
 				) : null}
 			</div>
 
-			<div className="border p-4 rounded bg-foreground text-background shadow-sm">
-				<h2 className="font-semibold mb-2">Response Debug:</h2>
-				<pre className="whitespace-pre-wrap text-xs overflow-auto max-h-96">
-					{JSON.stringify(response, null, 2)}
-				</pre>
-			</div>
+			<details className="bg-foreground text-background shadow-sm">
+				<summary className="px-4 py-3 font-semibold cursor-pointer">Response Debug</summary>
+				<div className="ml-4">
+					<pre className="whitespace-pre-wrap text-xs overflow-auto max-h-96">
+						{JSON.stringify(response, null, 2)}
+					</pre>
+				</div>
+			</details>
 		</>
 	);
 }

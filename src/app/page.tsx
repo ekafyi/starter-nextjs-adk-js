@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getUsernameFromCookie } from "@/lib/auth";
 import { loginAction, logoutAction } from "@/app/actions";
+import { getUsernameFromCookie } from "@/lib/auth";
 
 export default async function Home({
   searchParams,
@@ -41,15 +41,14 @@ export default async function Home({
           ) : (
             <>
               {error === "username_required" && (
-                <p className="text-destructive text-sm">Username is required.</p>
+                <p className="text-destructive text-sm">
+                  Username is required.
+                </p>
               )}
               {error === "not_logged_in" && (
                 <p className="text-destructive text-sm">Please log in first.</p>
               )}
-              <form
-                action={loginAction}
-                className="flex flex-col gap-4 w-full"
-              >
+              <form action={loginAction} className="flex flex-col gap-4 w-full">
                 <div className="flex flex-col gap-2">
                   <label
                     htmlFor="username"
@@ -60,9 +59,8 @@ export default async function Home({
                   <input
                     type="text"
                     id="username"
-                    name="username"
                     required
-                    className="border p-2 rounded text-background bg-foreground accent-primary"
+                    className="border border-current/25 p-2 rounded accent-primary bg-muted"
                     placeholder="Your username"
                   />
                 </div>
