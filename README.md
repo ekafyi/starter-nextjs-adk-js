@@ -23,6 +23,7 @@ Try now:
 - Next.js
 - Tailwind CSS
 - Biome
+- Drizzle
 
 ## Getting Started
 
@@ -56,30 +57,18 @@ Try now:
    nano .env
    ```
 
-4. Run Next.js dev server (default on `localhost:3000`)
+4. Setup local database
+
+   ```sh
+   npm run db:push
+   npm run db:seed
+   ```
+
+5. Run Next.js dev server (default on `localhost:3000`)
 
    ```sh
    npm run dev
    ```
-
-### Database Setup
-
-This project uses Drizzle ORM with SQLite (`@libsql/client`).
-
-1.  Install dependencies:
-    ```sh
-    npm install
-    ```
-
-2.  Push schema to create the DB file:
-    ```sh
-    npm run db:push
-    ```
-
-3.  Seed the database with a default user:
-    ```sh
-    npm run db:seed
-    ```
 
 ## ADK Web UI
 
@@ -105,6 +94,7 @@ src
 │   ├── agent/       # Frontend route `/agent`
 │   └── api/
 │       └── agent/   # API route `/api/agent`
+├── db/              # DB schema and client
 ├── lib/
 │   ├── data/        # Mock external data
 │   ├── auth.ts      # Mock user auth
@@ -170,7 +160,6 @@ Use optional `ToolContext` to read/write session-scoped state.
 },
 ```
 
-
   </div>
 </details>
 
@@ -215,19 +204,31 @@ Bring your own auth.
   </div>
 </details>
 
-## Persistence
+<details>
+  <summary style="font-weight:700">Persistence</summary>
+  <div>
 
-User sessions and events are persisted to a local SQLite file (`local.db`).
+Currently ADK TypeScript has [no built-in support for persistence](https://github.com/google/adk-js/discussions/27#discussioncomment-15332818); everything runs in-memory.
 
--   `src/lib/auth.ts` checks the `users` table.
--   `src/app/api/agent/route.ts` loads and saves session events.
+Here I use Drizzle and local SQLite file to persist user sessions and events manually.
 
-## Deployment & Trade-offs
+- DB client and schema
+   - [src/db](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/db)
+- Implementation
+   - [src/lib/auth.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/lib/auth.ts)
+   - [src/app/api/agent/route.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/api/agent/route.ts)
 
-For Vercel deployment, the local SQLite file will not persist across serverless function invocations.
+Local vs Remote DB:
 
--   **Recommendation**: Use a remote database (like Turso) by changing the `DB_FILE_NAME` environment variable to a `libsql://` URL for production.
--   **Note**: This implementation is a "starter" or "demo" setup.
+- Local file works out of the box for running locally.
+  - `npm run db:push` creates the DB file (default to `local.db`) and apply the schema.
+  - (optional) `npm run db:seed` inserts sample user to the DB.
+- If deploying this to a serverless hosting service, use a compatible remote database like [Turso](https://turso.tech). Local file will not persist across serverless function invocations.
+  - Change the `DB_FILE_NAME` env variable to a `libsql://` URL for production.
+  - Make sure to seed the remote DB by running `db:seed`.
+
+  </div>
+</details>
 
 ## Learn More
 
