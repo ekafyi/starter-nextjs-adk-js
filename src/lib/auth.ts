@@ -1,4 +1,7 @@
 import { cookies } from "next/headers";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export const COOKIE_NAME = "username";
 export const COOKIE_MAX_AGE = 60 * 60; // 1 hour in seconds
@@ -25,7 +28,20 @@ export async function setUsernameCookie(username: string) {
 export async function getUsernameFromCookie(): Promise<string | null> {
 	const cookieStore = await cookies();
 	const cookie = cookieStore.get(COOKIE_NAME);
-	return cookie?.value || null;
+	const username = cookie?.value;
+
+	if (!username) return null;
+
+	try {
+		const user = await db.query.users.findFirst({
+			where: eq(users.id, username),
+		});
+
+		return user ? user.id : null;
+	} catch (error) {
+		console.error("Error verifying user:", error);
+		return null;
+	}
 }
 
 /**

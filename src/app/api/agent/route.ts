@@ -1,13 +1,38 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: temporary workaround DB */
+import { randomUUID } from "node:crypto";
 import { InMemoryRunner } from "@google/adk";
 import { createUserContent } from "@google/genai";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { rootAgent } from "@/agents/agent";
+import { db } from "@/db";
+import { sessions } from "@/db/schema";
 import { getUsernameFromCookie } from "@/lib/auth";
 
 const APP_NAME = "sample_app";
 
 // Define runner outside the handler to persist state across requests.
 const runner = new InMemoryRunner({ agent: rootAgent, appName: APP_NAME });
+
+function cleanEvents(events: any[]) {
+	return events
+		.filter((event) => {
+			// Filter out empty marker events (where content.parts is empty)
+			if (
+				event.content &&
+				Array.isArray(event.content.parts) &&
+				event.content.parts.length === 0
+			) {
+				return false;
+			}
+			return true;
+		})
+		.map((event) => {
+			// biome-ignore lint/correctness/noUnusedVariables: unused to remove
+			const { actions, usageMetadata, ...rest } = event;
+			return rest;
+		});
+}
 
 /**
  * Ping on local dev server:
@@ -36,33 +61,43 @@ export async function POST(req: Request) {
 			);
 		}
 
-		// ⚠️ [FOR DB IMPLEMENTATION] Read DB to get user's active session ID.
-		// Example: `let sessionId = await db.getSessionId(userId);`
-		let sessionId: string | undefined;
+		const [userSession] = await db
+			.select()
+			.from(sessions)
+			.where(eq(sessions.userId, userId))
+			.limit(1);
 
-		// If no session ID found in DB, generate a new one and save it.
-		if (!sessionId) {
-			// Session ID does not have to be unique across users.
-			// You can generate random id (e.g.) `randomUUID` from `node:crypto` 
-			// or use any other way.
-			sessionId = "session_1";
+		let sessionId = userSession?.id;
+		let previousEvents = [];
 
-			// ⚠️ [FOR DB IMPLEMENTATION] Write to DB to store session ID.
-			// Example: `await db.saveSessionId(userId, sessionId);`
+		if (userSession) {
+			try {
+				previousEvents = JSON.parse(userSession.events);
+			} catch (e) {
+				console.error("Failed to parse session events", e);
+			}
+		} else {
+			sessionId = randomUUID();
 		}
 
-		const existingSession = await runner.sessionService.getSession({
+		let session = await runner.sessionService.getSession({
 			appName: APP_NAME,
 			userId,
 			sessionId,
 		});
 
-		if (!existingSession) {
-			await runner.sessionService.createSession({
+		if (!session) {
+			session = await runner.sessionService.createSession({
 				appName: APP_NAME,
 				userId,
 				sessionId,
 			});
+			if (previousEvents && previousEvents.length > 0) {
+				const service = runner.sessionService as any;
+				if (service.sessions?.[APP_NAME]?.[userId]?.[sessionId]) {
+					service.sessions[APP_NAME][userId][sessionId].events = previousEvents;
+				}
+			}
 		}
 
 		// runAsync returns an AsyncGenerator<Event>
@@ -77,6 +112,29 @@ export async function POST(req: Request) {
 		const events = [];
 		for await (const event of iterator) {
 			events.push(event);
+		}
+
+		const updatedSession = await runner.sessionService.getSession({
+			appName: APP_NAME,
+			userId,
+			sessionId,
+		});
+
+		if (updatedSession) {
+			const cleanedEvents = cleanEvents(updatedSession.events);
+			await db
+				.insert(sessions)
+				.values({
+					id: sessionId,
+					userId,
+					events: JSON.stringify(cleanedEvents),
+				})
+				.onConflictDoUpdate({
+					target: sessions.id,
+					set: {
+						events: JSON.stringify(cleanedEvents),
+					},
+				});
 		}
 
 		return NextResponse.json({ events, userId, sessionId });

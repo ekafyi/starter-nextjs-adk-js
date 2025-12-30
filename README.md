@@ -23,6 +23,7 @@ Try now:
 - Next.js
 - Tailwind CSS
 - Biome
+- Drizzle
 
 ## Getting Started
 
@@ -56,17 +57,18 @@ Try now:
    nano .env
    ```
 
-4. Run Next.js dev server (default on `localhost:3000`)
+4. Setup local database
+
+   ```sh
+   npm run db:push
+   npm run db:seed
+   ```
+
+5. Run Next.js dev server (default on `localhost:3000`)
 
    ```sh
    npm run dev
    ```
-
-### Deploying
-
-Deploy to Vercel or [other platforms](https://nextjs.org/docs/app/building-your-application/deploying) of your choice.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fekafyi%2Fstarter-nextjs-adk-js&env=GEMINI_API_KEY&envDescription=Google%20Gemini%20API%20key%20(free%20tier%20available)&envLink=https%3A%2F%2Faistudio.google.com%2Fapikey)
 
 ## ADK Web UI
 
@@ -92,6 +94,7 @@ src
 │   ├── agent/       # Frontend route `/agent`
 │   └── api/
 │       └── agent/   # API route `/api/agent`
+├── db/              # DB schema and client
 ├── lib/
 │   ├── data/        # Mock external data
 │   ├── auth.ts      # Mock user auth
@@ -157,7 +160,6 @@ Use optional `ToolContext` to read/write session-scoped state.
 },
 ```
 
-
   </div>
 </details>
 
@@ -203,34 +205,27 @@ Bring your own auth.
 </details>
 
 <details>
-  <summary style="font-weight:700">Session Data Persistence</summary>
+  <summary style="font-weight:700">Persistence</summary>
   <div>
 
-Persistent storage built-in support is [planned for early 2026](https://github.com/google/adk-js/discussions/27#discussioncomment-15332818).
+Currently ADK TypeScript has [no built-in support for persistence](https://github.com/google/adk-js/discussions/27#discussioncomment-15332818); everything runs in-memory.
 
-This project uses placeholder to replace with your own DB functionalities.
+Here I use Drizzle and local SQLite file to persist user sessions and events manually.
 
-📄 [src/app/api/agent/route.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/api/agent/route.ts)
+- DB client and schema
+   - [src/db](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/db)
+- Implementation
+   - [src/lib/auth.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/lib/auth.ts)
+   - [src/app/api/agent/route.ts](https://github.com/ekafyi/starter-nextjs-adk-js/blob/main/src/app/api/agent/route.ts)
 
-```ts
-// Replace with your own code:
-// - `getUsernameFromCookie`
-// - `generateNewId`,
-// - `db.getSessionId`, `db.saveSessionId`
+Local vs Remote DB:
 
-const userId = await getUsernameFromCookie();
-
-let sessionId = await db.getSessionId(userId); 
-if (!sessionId) {
-  sessionId = generateNewId();
-  await db.saveSessionId(userId, sessionId);
-}
-
-const existingSession = await runner.sessionService.getSession({ ... });
-if (!existingSession) {
-  await runner.sessionService.createSession({ ... });
-}
-```
+- Local file works out of the box for running locally.
+  - `npm run db:push` creates the DB file (default to `local.db`) and apply the schema.
+  - (optional) `npm run db:seed` inserts sample user to the DB.
+- If deploying this to a serverless hosting service, use a compatible remote database like [Turso](https://turso.tech). Local file will not persist across serverless function invocations.
+  - Change the `DB_FILE_NAME` env variable to a `libsql://` URL for production.
+  - Make sure to seed the remote DB by running `db:seed`.
 
   </div>
 </details>
