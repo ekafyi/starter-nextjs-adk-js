@@ -1,17 +1,30 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { setUsernameCookie, validateUsername, deleteUsernameCookie } from "@/lib/auth";
+import {
+	deleteUsernameCookie,
+	getUser,
+	setUsernameCookie,
+	validateUsername,
+} from "@/lib/auth";
 
 export async function loginAction(formData: FormData) {
-	try {
-		const usernameInput = formData.get("username")?.toString() || "";
-		const username = validateUsername(usernameInput);
+	const usernameInput = formData.get("username")?.toString() || "";
+	let username = "";
 
-		await setUsernameCookie(username);
+	try {
+		username = validateUsername(usernameInput);
 	} catch (error) {
 		redirect("/?error=username_required");
 	}
+
+	// Check if user exists in database
+	const user = await getUser(username);
+	if (!user) {
+		redirect("/?error=user_not_found");
+	}
+
+	await setUsernameCookie(username);
 	redirect("/agent");
 }
 

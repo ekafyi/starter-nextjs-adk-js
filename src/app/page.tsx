@@ -45,6 +45,11 @@ export default async function Home({
                   Username is required.
                 </p>
               )}
+              {error === "user_not_found" && (
+                <p className="text-destructive text-sm">
+                  User not found. Please check your username.
+                </p>
+              )}
               {error === "not_logged_in" && (
                 <p className="text-destructive text-sm">Please log in first.</p>
               )}
@@ -59,6 +64,7 @@ export default async function Home({
                   <input
                     type="text"
                     id="username"
+                    name="username"
                     required
                     className="border border-current/25 p-2 rounded accent-primary bg-muted"
                     placeholder="Your username"
