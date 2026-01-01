@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { logoutAction } from "@/app/actions";
 
-interface AgentClientProps { username: string }
+interface AgentClientProps {
+	username: string;
+	initialSessionId?: string | null;
+}
 
 interface AgentEvent {
 	content: {
@@ -24,9 +27,12 @@ interface AgentResponse {
 
 const AGENT_API_ROUTE = "/api/agent";
 
-export default function AgentClient({ username }: AgentClientProps) {
+export default function AgentClient({ username, initialSessionId }: AgentClientProps) {
 	const [input, setInput] = useState("");
-	const [response, setResponse] = useState<AgentResponse | null>(null);
+	const [response, setResponse] = useState<AgentResponse | null>(() => {
+		// Initialize with session ID if provided
+		return initialSessionId ? { sessionId: initialSessionId } : null;
+	});
 	const [loading, setLoading] = useState(false);
 
 	const handleSubmit = async (e: React.FormEvent) => {

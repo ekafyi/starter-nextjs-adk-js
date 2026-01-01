@@ -1,7 +1,7 @@
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
 
 export const COOKIE_NAME = "username";
 export const COOKIE_MAX_AGE = 60 * 60; // 1 hour in seconds
@@ -50,6 +50,20 @@ export async function getUsernameFromCookie(): Promise<string | null> {
 export async function deleteUsernameCookie() {
 	const cookieStore = await cookies();
 	cookieStore.delete(COOKIE_NAME);
+}
+
+/**
+ * Gets a user from the database by username
+ */
+export async function getUser(username: string) {
+	try {
+		return await db.query.users.findFirst({
+			where: eq(users.id, username),
+		});
+	} catch (error) {
+		console.error("Error fetching user:", error);
+		return null;
+	}
 }
 
 /**
