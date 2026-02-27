@@ -1,4 +1,5 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: temporary workaround DB */
+import "@/lib/logger";
 import { randomUUID } from "node:crypto";
 import { InMemoryRunner } from "@google/adk";
 import { createUserContent } from "@google/genai";
